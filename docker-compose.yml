@@ -1,0 +1,49 @@
+version: '3.3'
+
+services:
+  bfartsov:
+    build:
+      context: .
+    container_name: bfartsov
+    command: gunicorn core.wsgi:application  --bind 0.0.0.0:333
+    volumes:
+      - .:/app/bfartsov/
+      - ./static:/static  # <-- bind the static volume
+      - ./photo:/app/bfartsov/photo/  # <-- bind the media volume
+    ports:
+      - "333:333"
+    
+    deploy:
+      restart_policy:
+        condition: on-failure
+        max_attempts: 3
+    restart: always
+
+        
+    networks:
+      - nginx_network
+    
+  nginx:
+    image: nginx:latest
+    container_name: nginx-prod
+    ports:
+      - 222:80
+    volumes:
+      - ./config/nginx/conf.d:/etc/nginx/conf.d
+      - ./static:/static  # <-- bind the static volume
+      - ./media:/app/bfartsov/media/  
+    depends_on: 
+      - bfartsov
+    deploy:
+      restart_policy:
+        condition: on-failure
+        max_attempts: 3
+        
+    networks:
+      - nginx_network
+    restart: always
+
+networks:
+  nginx_network:
+    driver: bridge
+

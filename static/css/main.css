@@ -289,3 +289,9 @@ body {
     top:0;
     opacity: 0.8;
 }
+#stats .verse {
+    color: #e74c3c;
+}
+#stats .verse cite {
+    float: right;
+}
